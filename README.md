@@ -140,6 +140,7 @@ frontend/
     ├── constants/
     ├── interfaces/
     ├── pages/
+    ├── hooks/
 ```
 
 The backend follows a layered architecture that separates request handling, business logic, data transformation, and error handling. The frontend is organized into reusable components, API clients, and page-level containers to keep the application modular and maintainable.
@@ -338,6 +339,8 @@ GITHUB_API=https://api.github.com
 
 # Optional but recommended
 GITHUB_TOKEN=
+
+CORS_ORIGIN=http://localhost:5173
 ```
 
 ---

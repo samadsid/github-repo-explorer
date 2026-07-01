@@ -1,5 +1,4 @@
 import {
-    Avatar,
     FormControl,
     InputLabel,
     MenuItem,
@@ -10,6 +9,7 @@ import {
 import type { SelectChangeEvent } from "@mui/material";
 
 import type { GithubAuthor } from "../../interfaces/GithubAuthor";
+import UserAvatar from "../UserAvatar/UserAvatar";
 
 interface AuthorFilterProps {
     authors: GithubAuthor[];
@@ -63,19 +63,11 @@ export default function AuthorFilter({
                             key={author.username}
                             value={author.username}
                         >
-                            <Avatar
-                                src={author.avatarUrl}
-                                alt={author.username}
-                                sx={{
-                                    width: 32,
-                                    height: 32,
-                                    display: "inline-flex",
-                                    mr: 1,
-                                    verticalAlign: "middle",
-                                }}
-                            >
-                                {author.username.charAt(0).toUpperCase()}
-                            </Avatar>
+                            <UserAvatar
+                                username={author.username}
+                                avatarUrl={author.avatarUrl}
+                                sx={{}}
+                            />
                             {author.username} • {author.commitCount} commits
                         </MenuItem>
                     ))}

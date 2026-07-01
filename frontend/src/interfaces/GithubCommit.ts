@@ -4,14 +4,14 @@ export interface GithubCommit {
     commentCount: number;
 
     author: {
-        username: string;
-        avatarUrl: string;
-        profileUrl: string;
+        username: string | null;
+        avatarUrl: string | null;
+        profileUrl: string | null;
     };
 
     committer: {
-        username: string;
-        avatarUrl: string;
-        profileUrl: string;
+        username: string | null;
+        avatarUrl: string | null;
+        profileUrl: string | null;
     };
 }

@@ -7,7 +7,7 @@ import { GithubAuthor } from '../interfaces/domain/GithubAuthor';
 import { GithubApiComment } from '../interfaces/github/GithubApiComment';
 import { GithubComment } from '../interfaces/domain/GithubComment';
 import { translateGithubError } from '../translators/githubErrorTranslator';
-import { PaginatedResponse } from '../interfaces/domain/PaginatedResonse';
+import { PaginatedResponse } from '../interfaces/domain/PaginatedResponse';
 import { parseGithubLinkHeader } from '../utils/parseGithubLinkHeader';
 import { RepoRouteParams } from '../interfaces/request/RouteParams';
 import { CommentFilters, CommitFilters, GetCommentsRequest, GetCommitsRequest, RepositoryRequest } from '../interfaces/request/ServiceRequests';
@@ -34,10 +34,8 @@ class GithubService {
 
             return response;
         } catch (error) {
-            translateGithubError(error)
+            throw translateGithubError(error);
         }
-
-
     }
 
     private async fetchComments(
@@ -57,10 +55,8 @@ class GithubService {
 
             return response;
         } catch (error) {
-            translateGithubError(error)
+            throw translateGithubError(error);
         }
-
-
     }
 
     async getCommits(query: GetCommitsRequest): Promise<PaginatedResponse<GithubCommit>> {

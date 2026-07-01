@@ -1,6 +1,5 @@
 import {
     Alert,
-    Avatar,
     Box,
     Button,
     CircularProgress,
@@ -18,6 +17,8 @@ import {
 
 import type { GithubCommit } from "../../interfaces/GithubCommit";
 import type { Pagination } from "../../interfaces/PaginatedResponse";
+import UserAvatar from "../UserAvatar/UserAvatar";
+import PaginationControls from "../Pagination/PaginationControls";
 
 interface CommitsTableProps {
     commits: GithubCommit[];
@@ -120,25 +121,16 @@ export default function CommitsTable({
                                     direction="row"
                                     spacing={1}
                                 >
-                                    <Avatar
-                                        src={commit.author.avatarUrl}
-                                        alt={commit.author.username}
-                                        sx={{
-                                            width: 32,
-                                            height: 32,
-                                            display: "inline-flex",
-                                            mr: 1,
-                                            verticalAlign: "middle",
-                                        }}
-                                    >
-                                        {commit.author.username.charAt(0).toUpperCase()}
-                                    </Avatar>
+                                    <UserAvatar
+                                        username={commit.author.username}
+                                        avatarUrl={commit.author.avatarUrl}
+                                    />
                                     <Link
-                                        href={commit.author.profileUrl}
+                                        href={commit.author.profileUrl ?? "#"}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     >
-                                        {commit.author.username}
+                                        {commit.author.username ?? "Unknown User"}
                                     </Link>
                                 </Stack>
                             </TableCell>
@@ -164,35 +156,12 @@ export default function CommitsTable({
                     ))}
                 </TableBody>
             </Table>
-            {
-                pagination && (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            mt: 2,
-                        }}
-                    >
-                        <Button
-                            disabled={!pagination.hasPreviousPage}
-                            onClick={() => onPageChange(pagination.page - 1)}
-                        >
-                            Previous
-                        </Button>
-
-                        <Typography>
-                            Page {pagination.page} of {pagination.totalPages ? pagination.totalPages : pagination.page}
-                        </Typography>
-
-                        <Button
-                            disabled={!pagination.hasNextPage}
-                            onClick={() => onPageChange(pagination.page + 1)}
-                        >
-                            Next
-                        </Button>
-                    </Box>
-                )
-            }
+            {pagination && (
+                <PaginationControls
+                    pagination={pagination}
+                    onPageChange={onPageChange}
+                />
+            )}
         </TableContainer >
 
     );

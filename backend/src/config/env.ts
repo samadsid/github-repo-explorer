@@ -13,5 +13,6 @@ function requireEnv(name: string): string {
 export const env = {
     PORT: requireEnv("PORT"),
     GITHUB_API: requireEnv("GITHUB_API"),
-    GITHUB_TOKEN: ''
+    GITHUB_TOKEN: '',
+    CORS_ORIGIN: process.env.CORS_ORIGIN ?? "http://localhost:8080",
 };

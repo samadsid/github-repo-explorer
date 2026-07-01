@@ -7,19 +7,16 @@ import {
     Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { githubApi } from "../api/github.api";
-import type { GithubCommit } from "../interfaces/GithubCommit";
-import type { GithubAuthor } from "../interfaces/GithubAuthor";
-import type { GithubComment } from "../interfaces/GithubComment";
 import RepoSearch from "../components/RepoSearch/RepoSearch";
 import type { Repository } from "../interfaces/Repository";
 import AuthorFilter from "../components/AuthorFilter/AuthorFilter";
 import CommitsTable from "../components/CommitsTable/CommitsTable";
 import CommentsModal from "../components/CommentsModal/CommentsModal";
 import axios from "axios";
-import type { Pagination } from "../interfaces/PaginatedResponse";
-import type { GetCommentsRequest, GetCommitsRequest } from "../interfaces/GithubRequest";
 import { DEFAULT_LIMIT, DEFAULT_PAGE } from "../constants/constants";
+import { useCommits } from "../hooks/useCommits";
+import { useComments } from "../hooks/useComments";
+import { useAuthors } from "../hooks/useAuthors";
 
 
 const Home = () => {
@@ -28,34 +25,37 @@ const Home = () => {
         repo: "",
     });
 
-    // Commits
-    const [commits, setCommits] = useState<GithubCommit[]>([]);
-    const [commitPagination, setCommitPagination] =
-        useState<Pagination | null>(null);
-
-
-
-    // Comments
-    const [comments, setComments] = useState<GithubComment[]>([]);
-    const [commentPagination, setCommentPagination] =
-        useState<Pagination | null>(null);
-
-    const [authors, setAuthors] = useState<GithubAuthor[]>([]);
-    const [selectedAuthor, setSelectedAuthor] = useState("");
-
-
     const [loading, setLoading] = useState(false);
-    const [commitsLoading, setCommitsLoading] = useState(false);
-
-    const [commentsLoading, setCommentsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
     const [hasSearched, setHasSearched] = useState(false);
 
+    const {
+        commits,
+        pagination: commitPagination,
+        loading: commitsLoading,
+        selectedAuthor,
+        setSelectedAuthor,
+        fetchCommits,
+        reset: resetCommits,
+    } = useCommits();
 
-    const [selectedCommitSha, setSelectedCommitSha] = useState<string | null>(null);
+    const {
+        comments,
+        pagination: commentPagination,
+        loading: commentsLoading,
+        selectedCommitSha,
+        isOpen: isCommentsModalOpen,
+        fetchComments,
+        open: openComments,
+        close: closeComments,
+        reset: resetComments,
+    } = useComments();
 
-    const isCommentsModalOpen = selectedCommitSha !== null;
+    const {
+        authors,
+        fetchAuthors,
+        reset: resetAuthors,
+    } = useAuthors();
 
     const repositoryRequest = {
         owner: repository.owner,
@@ -74,44 +74,18 @@ const Home = () => {
         }
     };
 
-    const fetchCommits = async (
-        request: GetCommitsRequest
-    ): Promise<void> => {
-        const response = await githubApi.getCommits(request);
-
-        setCommits(response.items);
-        setCommitPagination(response.pagination);
-    };
-
-    const fetchComments = async (
-        request: GetCommentsRequest
-    ): Promise<void> => {
-        const response = await githubApi.getComments(request);
-
-        setComments(response.items);
-        setCommentPagination(response.pagination);
-    };
-
-
     // Handlers
 
     const handleSearch = async () => {
         try {
-            setHasSearched(true)
+            setHasSearched(true);
             setLoading(true);
             setError(null);
 
-            setCommits([]);
-            setCommitPagination(null);
+            resetCommits();
+            resetComments();
 
-            setComments([]);
-            setCommentPagination(null);
-
-            setSelectedCommitSha(null);
-
-            setSelectedAuthor("");
-
-            const [_, authors] = await Promise.all([
+            await Promise.all([
                 fetchCommits({
                     owner: repository.owner,
                     repo: repository.repo,
@@ -119,20 +93,11 @@ const Home = () => {
                     limit: DEFAULT_LIMIT,
                 }),
 
-                githubApi.getAuthors(
-                    repository.owner,
-                    repository.repo
-                )
-
-            ])
-
-
-            setAuthors(authors);
-
+                fetchAuthors(repository.owner, repository.repo),
+            ]);
         } catch (error) {
-            handleApiError(error)
-            setAuthors([]);
-
+            handleApiError(error);
+            resetAuthors();
         } finally {
             setLoading(false);
         }
@@ -140,7 +105,6 @@ const Home = () => {
 
     const handleAuthorChange = async (author: string) => {
         try {
-            setCommitsLoading(true);
             setError(null);
 
             setSelectedAuthor(author);
@@ -152,17 +116,12 @@ const Home = () => {
                 limit: DEFAULT_LIMIT,
             });
         } catch (error) {
-            handleApiError(error)
-
-        } finally {
-            setLoading(false);
-            setCommitsLoading(false);
+            handleApiError(error);
         }
     };
 
     const handleCommitPageChange = async (page: number) => {
         try {
-            setCommitsLoading(true);
             setError(null);
 
             await fetchCommits({
@@ -172,27 +131,19 @@ const Home = () => {
                 limit: DEFAULT_LIMIT,
             });
         } catch (error) {
-            handleApiError(error)
-        } finally {
-            setCommitsLoading(false);
+            handleApiError(error);
         }
     };
 
-
-
-
     const handleCloseComments = () => {
-        setSelectedCommitSha(null);
-        setComments([])
-        setCommentPagination(null);
+        closeComments();
     };
 
     const handleViewComments = async (sha: string) => {
         try {
-            setCommentsLoading(true);
             setError(null);
 
-            setSelectedCommitSha(sha);
+            openComments(sha);
 
             await fetchComments({
                 ...repositoryRequest,
@@ -201,21 +152,16 @@ const Home = () => {
                 limit: DEFAULT_LIMIT,
             });
         } catch (error) {
-            handleApiError(error)
-        } finally {
-            setCommentsLoading(false);
+            handleApiError(error);
         }
     };
 
-
     const handleCommentPageChange = async (page: number) => {
-
         if (!selectedCommitSha) {
             return;
         }
 
         try {
-            setCommentsLoading(true);
             setError(null);
 
             await fetchComments({
@@ -225,13 +171,9 @@ const Home = () => {
                 limit: DEFAULT_LIMIT,
             });
         } catch (error) {
-            handleApiError(error)
-        } finally {
-            setCommentsLoading(false);
+            handleApiError(error);
         }
     };
-
-
 
     return (
         <Container maxWidth="lg">

@@ -1,4 +1,4 @@
-import { PaginationMetadata } from "../interfaces/domain/PaginatedResonse";
+import { PaginationMetadata } from "../interfaces/domain/PaginatedResponse";
 
 export function parseGithubLinkHeader(
     linkHeader: string | undefined,

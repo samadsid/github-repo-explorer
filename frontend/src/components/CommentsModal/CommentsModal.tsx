@@ -1,5 +1,4 @@
 import {
-    Avatar,
     Dialog,
     DialogContent,
     DialogTitle,
@@ -10,13 +9,14 @@ import {
     ListItemText,
     Typography,
     Box,
-    Button,
     CircularProgress,
     DialogActions
 } from "@mui/material";
 
 import type { GithubComment } from "../../interfaces/GithubComment";
 import type { Pagination } from "../../interfaces/PaginatedResponse";
+import UserAvatar from "../UserAvatar/UserAvatar";
+import PaginationControls from "../Pagination/PaginationControls";
 
 interface CommentsModalProps {
     open: boolean;
@@ -65,9 +65,11 @@ export default function CommentsModal({
                         {comments.map((comment) => (
                             <ListItem key={comment.htmlUrl} divider>
                                 <ListItemAvatar>
-                                    <Avatar src={comment.avatarUrl ?? undefined}>
-                                        {comment.username?.charAt(0).toUpperCase()}
-                                    </Avatar>
+                                    <UserAvatar
+                                        username={comment.username}
+                                        avatarUrl={comment.avatarUrl}
+                                        sx={{}}
+                                    />
                                 </ListItemAvatar>
 
                                 <ListItemText
@@ -108,29 +110,13 @@ export default function CommentsModal({
                 )}
             </DialogContent>
             {pagination && (
-                <DialogActions
-                    sx={{
-                        justifyContent: "space-between",
-                        px: 3,
-                    }}
-                >
-                    <Button
-                        disabled={!pagination.hasPreviousPage || commentsLoading}
-                        onClick={() => onPageChange(pagination.page - 1)}
-                    >
-                        Previous
-                    </Button>
-
-                    <Typography>
-                        Page {pagination.page} of {pagination.totalPages ? pagination.totalPages : pagination.page}
-                    </Typography>
-
-                    <Button
-                        disabled={!pagination.hasNextPage || commentsLoading}
-                        onClick={() => onPageChange(pagination.page + 1)}
-                    >
-                        Next
-                    </Button>
+                <DialogActions sx={{ px: 3 }}>
+                    <PaginationControls
+                        pagination={pagination}
+                        onPageChange={onPageChange}
+                        disabled={commentsLoading}
+                        sx={{ mt: 0, width: "100%" }}
+                    />
                 </DialogActions>
             )}
         </Dialog>

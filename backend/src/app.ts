@@ -4,13 +4,14 @@ import helmet from "helmet";
 
 // Routes Import
 import githubRoutes from "./routes/github.routes";
-import { errorMiddleware } from "./middlewares/error.milddleware";
+import { errorMiddleware } from "./middlewares/error.middleware";
+import { env } from "./config/env";
 
 const app = express();
 
 app.use(helmet());
 
-app.use(cors());
+app.use(cors({ origin: env.CORS_ORIGIN }));
 
 app.use(express.json());
 

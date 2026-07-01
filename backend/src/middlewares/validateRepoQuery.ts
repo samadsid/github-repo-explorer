@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ApiError } from "../errors/ApiError";
 import { CommentQueryParams, CommitQueryParams } from "../interfaces/request/QueryParams";
 import { ERROR_MESSAGES } from "../constants/errorMessages";
-import { DEFAULT_LIMIT, DEFAULT_PAGE } from "../constants/constants";
+import { DEFAULT_LIMIT, DEFAULT_PAGE, MAX_LIMIT } from "../constants/constants";
 
 
 function validatePaginationQuery(
@@ -19,7 +19,7 @@ function validatePaginationQuery(
     if (
         !Number.isInteger(limitNumber) ||
         limitNumber < 1 ||
-        limitNumber > 100
+        limitNumber > MAX_LIMIT
     ) {
         throw new ApiError(400, ERROR_MESSAGES.INVALID_LIMIT);
     }
