@@ -240,7 +240,7 @@ Make sure the following tools are installed on your machine:
 
 ```bash
 git clone <repository-url>
-cd github-commits-app
+cd github-repo-explorer
 ```
 
 ### 2. Start the Backend
